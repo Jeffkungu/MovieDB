@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">MovieDb</string>
+    <string name="app_name">Jeff Movies</string>
+    <string name="api_key">58edca94ee04b9ed82c8e0f677e23fda</string>
+
 </resources>
