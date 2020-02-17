@@ -2,6 +2,9 @@ package com.jeff.moviedb.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,14 +21,17 @@ import com.jeff.moviedb.model.Movie;
 import com.jeff.moviedb.model.MovieDBResponse;
 import com.jeff.moviedb.service.MovieDataService;
 import com.jeff.moviedb.service.RetrofitInstance;
+import com.jeff.moviedb.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Movie> movies;
     private RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
+    private MainActivityViewModel mainActivityViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,33 +40,17 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle("Jeff Kungu");
 
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+
         getPopularMovies();
     }
 
     public void getPopularMovies() {
-
-        MovieDataService movieDataService = RetrofitInstance.getService();
-
-        Call<MovieDBResponse> call = movieDataService.getPopularMovies(this.getString(R.string.api_key));
-
-        call.enqueue(new Callback<MovieDBResponse>() {
+        mainActivityViewModel.getAllMovies().observe(this, new Observer<List<Movie>>() {
             @Override
-            public void onResponse(Call<MovieDBResponse> call, Response<MovieDBResponse> response) {
-
-                MovieDBResponse movieDBResponse = response.body();
-
-
-                if (movieDBResponse != null && movieDBResponse.getMovies() != null) {
-                    movies = (ArrayList<Movie>) movieDBResponse.getMovies();
-                    showOnRecyclerView();
-                }
-
-
-            }
-
-            @Override
-            public void onFailure(Call<MovieDBResponse> call, Throwable t) {
-
+            public void onChanged(List<Movie> moviesFromLiveData) {
+                movies = (ArrayList<Movie>) moviesFromLiveData;
+                showOnRecyclerView();
             }
         });
 
