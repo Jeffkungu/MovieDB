@@ -5,17 +5,15 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
 import com.jeff.moviedb.R;
+import com.jeff.moviedb.databinding.MovieListItemBinding;
 import com.jeff.moviedb.model.Movie;
 import com.jeff.moviedb.view.MovieActivity;
 
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
@@ -31,26 +29,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        MovieListItemBinding movieListItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
+                R.layout.movie_list_item, parent, false);
 
-
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_list_item,parent,false);
-        return new MovieViewHolder(view);
+        return new MovieViewHolder(movieListItemBinding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+        Movie movie = movieArrayList.get(position);
 
-        holder.movieTitle.setText(movieArrayList.get(position).getOriginalTitle());
-        holder.rate.setText(Double.toString(movieArrayList.get(position).getVoteAverage()));
-
-        String imagePath="https://image.tmdb.org/t/p/w500"+movieArrayList.get(position).getPosterPath();
-
-        Glide.with(context)
-                .load(imagePath)
-                .placeholder(R.drawable.loading)
-                .into(holder.movieImage);
-
-
+        holder.movieListItemBinding.setMovie(movie);
     }
 
     @Override
@@ -60,19 +49,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
 
     public class MovieViewHolder extends RecyclerView.ViewHolder {
+        private MovieListItemBinding movieListItemBinding;
 
+        public MovieViewHolder(@NonNull MovieListItemBinding movieListItemBinding) {
+            super(movieListItemBinding.getRoot());
+            this.movieListItemBinding = movieListItemBinding;
 
-        public TextView movieTitle, rate;
-        public ImageView movieImage;
-
-        public MovieViewHolder(View itemView) {
-            super(itemView);
-
-            movieImage = (ImageView) itemView.findViewById(R.id.ivMovie);
-            rate = (TextView) itemView.findViewById(R.id.tvRating);
-            movieTitle = (TextView) itemView.findViewById(R.id.tvTitle);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
+            movieListItemBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
@@ -85,10 +68,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                         Intent intent=new Intent(context, MovieActivity.class);
                         intent.putExtra("movie",selctedMovie);
                         context.startActivity(intent);
-
                     }
-
-
                 }
             });
         }
